@@ -1,17 +1,14 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
-  publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  NODE_VERSION = "20"
 
-# Redirects for SPA routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# আসল Next.js (App Router, API routes, streaming) সঠিকভাবে ডিপ্লয় করার জন্য
+# এই প্লাগিনটাই সব রাউটিং/ফাংশন/ক্যাশিং নিজে থেকে ম্যানেজ করে —
+# ম্যানুয়াল SPA redirect বা publish path লাগবে না
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 # Security headers
 [[headers]]
@@ -23,7 +20,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
-# Cache headers for static assets
+# স্ট্যাটিক অ্যাসেট ক্যাশিং
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
@@ -34,19 +31,6 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000"
 
-# API routes
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Cache-Control = "no-cache"
-    Content-Type = "application/json"
-
 # Context-specific settings
-[context.production]
-  environment = { NODE_ENV = "production" }
-
-[context.deploy-preview]
-  environment = { NODE_ENV = "production" }
-
 [context.branch-deploy]
   environment = { NODE_ENV = "development" }

@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Netlify deployment সাপোর্ট
-  output: 'standalone',
-  
   // ইমেজ অপটিমাইজেশন
   images: {
     domains: [
