@@ -438,3 +438,5 @@ Netlify তে লাইভ করার আগে এই লিস্ট চে
 **Happy Coding!** 🚀💻
 
 Made with ❤️ by the NexAI Team
+
+<!-- redeploy trigger -->
