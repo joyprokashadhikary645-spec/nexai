@@ -1,0 +1,344 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==================== USER ====================
+model User {
+  id              String @id @default(cuid())
+  email           String @unique
+  passwordHash    String?
+  name            String
+  avatar          String?
+  bio             String?
+  
+  // রোল এবং স্ট্যাটাস
+  role            String @default("user")  // user, admin, super_admin
+  isVerified      Boolean @default(false)
+  isBanned        Boolean @default(false)
+  banReason       String?
+
+  // অ্যাকাউন্ট লকআউট (বারবার ভুল পাসওয়ার্ড দিলে)
+  failedLoginAttempts Int @default(0)
+  lockedUntil     DateTime?
+
+  // সেশন রিভোকেশন ("Log out of all devices")
+  tokenVersion    Int @default(0)
+
+  // Two-Factor Authentication (TOTP)
+  twoFactorSecret   String?
+  twoFactorEnabled  Boolean @default(false)
+  
+  // প্রেফারেন্স
+  language        String @default("en")    // ব্যবহারকারীর ভাষা
+  theme           String @default("light") // dark/light
+  emailNotifications Boolean @default(true)
+  
+  // সোশ্যাল লগইন
+  googleId        String? @unique
+  
+  // টাইমস্ট্যাম্প
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+  
+  // রিলেশন
+  chats           Chat[]
+  documents       Document[]
+  translations    Translation[]
+  subscriptions   Subscription[]
+  contents        GeneratedContent[]
+  notifications   Notification[]
+  
+  @@index([email])
+  @@index([googleId])
+  @@map("users")
+}
+
+// ==================== CHAT ====================
+model Chat {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String @default("New Chat")
+  description     String?
+  model           String @default("mistral")
+  
+  // চ্যাটের অবস্থা
+  isSaved         Boolean @default(false)
+  isPinned        Boolean @default(false)
+  isArchived      Boolean @default(false)
+  
+  // টাইমস্ট্যাম্প
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // রিলেশন
+  messages        Message[]
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@map("chats")
+}
+
+// ==================== MESSAGE ====================
+model Message {
+  id              String @id @default(cuid())
+  chatId          String
+  chat            Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  
+  role            String  // "user" or "assistant"
+  content         String  @db.Text
+  
+  // AI মডেল ইনফরমেশন
+  model           String?
+  tokensUsed      Int @default(0)
+  
+  // সম্পাদনা ট্র্যাকিং
+  isEdited        Boolean @default(false)
+  editedAt        DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([chatId])
+  @@index([role])
+  @@map("messages")
+}
+
+// ==================== GENERATED CONTENT (AI আউটপুট স্টোরেজ) ====================
+model GeneratedContent {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // কন্টেন্ট টাইপ
+  type            String  // blog, code, email, translator, etc
+  title           String
+  content         String @db.Text
+  
+  // মেটাডাটা
+  tags            String? // comma-separated
+  hashtags        String? // #tag1, #tag2
+  emojis          String? // 😊, 🎉 (যদি user চেয়েছে)
+  
+  // কাস্টমাইজেশন
+  includeHashtags Boolean @default(false)
+  includeEmojis   Boolean @default(false)
+  
+  // স্ট্যাটাস
+  isSaved         Boolean @default(false)
+  isFavorite      Boolean @default(false)
+  
+  // টোকেন ট্র্যাকিং
+  tokensUsed      Int @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([type])
+  @@index([isSaved])
+  @@map("generated_contents")
+}
+
+// ==================== TRANSLATION ====================
+model Translation {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // অনুবাদের ডেটা
+  sourceText      String @db.Text
+  sourceLanguage  String
+  
+  translatedText  String @db.Text
+  targetLanguage  String
+  
+  // মেটাডাটা
+  title           String?
+  hashtags        String?
+  emojis          String?
+  includeHashtags Boolean @default(false)
+  includeEmojis   Boolean @default(false)
+  
+  // স্ট্যাটাস
+  isSaved         Boolean @default(false)
+  tokensUsed      Int @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([sourceLanguage])
+  @@index([targetLanguage])
+  @@map("translations")
+}
+
+// ==================== DOCUMENT ====================
+model Document {
+  id              String @id @default(cuid())
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fileName        String
+  fileType        String  // pdf, docx, txt
+  fileSize        Int
+  fileUrl         String
+  
+  // সাম্মারি এবং মেটাডাটা
+  summary         String? @db.Text
+  extractedText   String? @db.Text
+  
+  // ট্যাগ এবং ল্যাবেল
+  tags            String?
+  hashtags        String?
+  
+  // স্ট্যাটাস
+  isProcessed     Boolean @default(false)
+  
+  // টোকেন ট্র্যাকিং
+  tokensUsed      Int @default(0)
+  
+  uploadedAt      DateTime @default(now())
+  processedAt     DateTime?
+  
+  @@index([userId])
+  @@index([fileType])
+  @@map("documents")
+}
+
+// ==================== USAGE TRACKING ====================
+model Usage {
+  id              String @id @default(cuid())
+  userId          String
+  
+  // ফিচার ট্র্যাকিং
+  feature         String  // chat, blog, code, translator, etc
+  action          String? // generate, summarize, translate, etc
+  
+  // ডেটা
+  tokensUsed      Int
+  language        String? // যদি অনুবাদ হয়
+  
+  // মেটাডেটা
+  ipAddress       String?
+  userAgent       String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([feature])
+  @@index([createdAt])
+  @@map("usages")
+}
+
+// ==================== SUBSCRIPTION ====================
+model Subscription {
+  id              String @id @default(cuid())
+  userId          String @unique
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // পরিকল্পনা
+  plan            String @default("free") // free, pro, enterprise
+  status          String @default("active") // active, cancelled, expired
+  
+  // সীমা
+  monthlyTokens   Int @default(100000)
+  tokensUsed      Int @default(0)
+  
+  // বিলিং
+  renewalDate     DateTime?
+  cancelledAt     DateTime?
+  
+  // তথ্য
+  features        String? // JSON string of features
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([plan])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+// ==================== ADMIN SETTINGS ====================
+model AdminSetting {
+  id              String @id @default(cuid())
+  key             String @unique
+  value           String @db.Text
+  description     String?
+  
+  updatedAt       DateTime @updatedAt
+  
+  @@map("admin_settings")
+}
+
+// ==================== AUDIT LOG ====================
+// Super Admin-দের সংবেদনশীল কাজ (role change ইত্যাদি) ট্র্যাক করার জন্য
+model AuditLog {
+  id              String @id @default(cuid())
+
+  actorId         String   // যে ব্যবহারকারী কাজটি করেছে
+  actorEmail      String
+  action          String   // যেমন "role_change"
+  targetId        String?  // যার উপর কাজটি হয়েছে
+  targetEmail     String?
+  details         String?  // JSON string, যেমন { from: "admin", to: "super_admin" }
+  ipAddress       String?
+
+  createdAt       DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==================== NOTIFICATIONS ====================
+model Notification {
+  id          String @id @default(cuid())
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type        String   // role_change, email_verified, security, system, usage_warning
+  title       String
+  message     String
+  link        String?  // ক্লিক করলে কোথায় যাবে
+  isRead      Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ==================== ANALYTICS ====================
+model Analytics {
+  id              String @id @default(cuid())
+  
+  // ট্র্যাকিং ডেটা
+  date            DateTime @default(now())
+  totalUsers      Int @default(0)
+  activeUsers     Int @default(0)
+  totalChats      Int @default(0)
+  totalTokensUsed Int @default(0)
+  
+  // ফিচার ব্যবহার
+  chatCount       Int @default(0)
+  blogCount       Int @default(0)
+  codeCount       Int @default(0)
+  translatorCount Int @default(0)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([date])
+  @@map("analytics")
+}

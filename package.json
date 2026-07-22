@@ -1,0 +1,60 @@
+{
+  "name": "nexai",
+  "version": "1.0.0",
+  "description": "AI SaaS Platform - Free & Open Source",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.3.0",
+    "@prisma/client": "^5.7.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "axios": "^1.6.0",
+    "bcryptjs": "^2.4.3",
+    "date-fns": "^2.30.0",
+    "js-cookie": "^3.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^1.25.0",
+    "mammoth": "^1.6.0",
+    "next": "^15.0.0",
+    "otplib": "^13.4.1",
+    "pdf-parse": "^1.1.1",
+    "postcss": "^8.4.0",
+    "prisma": "^5.7.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.48.0",
+    "react-hot-toast": "^2.4.1",
+    "react-markdown": "^9.0.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.3.0",
+    "zod": "^3.22.0",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.12",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/js-cookie": "^3.0.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/qrcode": "^1.5.6",
+    "ts-node": "^10.9.0"
+  }
+}
