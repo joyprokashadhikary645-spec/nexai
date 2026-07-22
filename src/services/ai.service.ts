@@ -8,9 +8,9 @@
 
 import axios from 'axios';
 
-const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const OPENROUTER_API_KEY = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
-const HF_API_KEY = process.env.NEXT_PUBLIC_HF_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const HF_API_KEY = process.env.HF_API_KEY;
 
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';

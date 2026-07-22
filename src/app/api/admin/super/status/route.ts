@@ -25,9 +25,9 @@ export async function GET(request: NextRequest) {
         counts: { totalUsers, totalAdmins, totalSuperAdmins, totalChats },
         // শুধু "configured" কিনা — আসল key কখনোই ফেরত পাঠানো হয় না
         services: {
-          gemini: Boolean(process.env.NEXT_PUBLIC_GEMINI_API_KEY),
-          openrouter: Boolean(process.env.NEXT_PUBLIC_OPENROUTER_API_KEY),
-          huggingface: Boolean(process.env.NEXT_PUBLIC_HF_API_KEY),
+          gemini: Boolean(process.env.GEMINI_API_KEY),
+          openrouter: Boolean(process.env.OPENROUTER_API_KEY),
+          huggingface: Boolean(process.env.HF_API_KEY),
           database: Boolean(process.env.DATABASE_URL),
         },
       },
