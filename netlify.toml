@@ -6,6 +6,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--include=dev"
 
 # Security headers
 [[headers]]
@@ -29,11 +30,5 @@
     Cache-Control = "public, max-age=31536000"
 
 # Context-specific settings
-[context.production]
-  environment = { NODE_ENV = "production" }
-
-[context.deploy-preview]
-  environment = { NODE_ENV = "production" }
-
-[context.branch-deploy]
-  environment = { NODE_ENV = "development" }
+# (NODE_ENV আলাদাভাবে সেট করা হয়নি — এটা npm install-কে devDependencies স্কিপ করাচ্ছিল,
+# যার ফলে build-time প্যাকেজ যেমন @tailwindcss/typography পাওয়া যাচ্ছিল না)
