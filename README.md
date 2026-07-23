@@ -440,3 +440,5 @@ Netlify তে লাইভ করার আগে এই লিস্ট চে
 Made with ❤️ by the NexAI Team
 
 <!-- redeploy trigger -->
+
+<!-- redeploy trigger 2: fix NEXT_PUBLIC_SITE_URL -->
