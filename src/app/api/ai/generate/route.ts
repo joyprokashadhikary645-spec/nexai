@@ -35,14 +35,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Not authorized' }, { status: 401 });
     }
 
-    // ইমেইল যাচাই বাধ্যতামূলক — AI ফিচার ব্যবহারের আগে
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { message: 'Please verify your email to use AI features', code: 'EMAIL_NOT_VERIFIED' },
-        { status: 403 }
-      );
-    }
-
     // মাসিক টোকেন লিমিট চেক
     const usage = await getUsageSummary(user.id);
     if (usage.isLimitReached) {

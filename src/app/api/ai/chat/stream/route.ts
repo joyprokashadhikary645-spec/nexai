@@ -20,13 +20,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Not authorized' }, { status: 401 });
   }
 
-  if (!user.isVerified) {
-    return NextResponse.json(
-      { message: 'Please verify your email to use AI features', code: 'EMAIL_NOT_VERIFIED' },
-      { status: 403 }
-    );
-  }
-
   const usage = await getUsageSummary(user.id);
   if (usage.isLimitReached) {
     return NextResponse.json(
